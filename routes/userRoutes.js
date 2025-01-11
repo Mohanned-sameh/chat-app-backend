@@ -15,6 +15,19 @@ router.post('/signup', async (req, res) => {
     res.status(400).json({ error: 'Error creating user' });
   }
 });
+// Get Logged-In User Details
+router.get('/me', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select('-password');
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+});
 
 // Login Route
 router.post('/login', async (req, res) => {
